@@ -86,9 +86,10 @@ export default function ChatPage() {
             >
               <p className="break-words">{message.content}</p>
               <span className="text-xs opacity-70 mt-1 block">
-                {message.timestamp.toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(message.timestamp).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
                 })}
               </span>
             </div>
