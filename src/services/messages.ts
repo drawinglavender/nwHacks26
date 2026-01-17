@@ -10,9 +10,14 @@ export const getMessages = async (roomId: string) => {
 
 export const sendMessage = async (
   roomId: string,
-  content: string
+  content: string,
+  senderName: string
 ) => {
   return supabase
     .from('messages')
-    .insert({ room_id: roomId, content })
+    .insert({
+      room_id: roomId,
+      content,
+      sender_name: senderName
+    })
 }
