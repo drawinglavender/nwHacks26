@@ -1,65 +1,163 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState } from 'react';
+import { LoginScreen } from './components/LoginScreen';
+import { OnboardingFixed } from './components/OnboardingFixed';
+import { OnboardingSelectable } from './components/OnboardingSelectable';
+import { SoulColorResult } from './components/SoulColorResult';
+import { CreateStartingPrompt } from './components/CreateStartingPrompt';
+import { LiveLounge } from './components/LiveLounge';
+import { HostInbox } from './components/HostInbox';
+import { ChatScreen } from './components/ChatScreen';
+import { TimeLimitFeedback } from './components/TimeLimitFeedback';
+import { MatchConfirmation } from './components/MatchConfirmation';
+
+export type Screen = 
+  | 'login'
+  | 'onboarding-fixed' 
+  | 'onboarding-selectable'
+  | 'soul-color' 
+  | 'create-prompt'
+  | 'lounge' 
+  | 'inbox'
+  | 'chat'
+  | 'time-feedback'
+  | 'match-confirmation';
+
+export interface OnboardingAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface Thought {
+  id: string;
+  content: string;
+  soulColor: { from: string; to: string };
+  author: string;
+}
 
 export default function Home() {
+  const [currentScreen, setCurrentScreen] = useState<Screen>('login');
+  const [userSoulColor, setUserSoulColor] = useState({ from: '#E8C4B8', to: '#D4A89F' });
+  const [selectedThought, setSelectedThought] = useState<Thought | null>(null);
+  const [onboardingAnswers, setOnboardingAnswers] = useState<OnboardingAnswer[]>([]);
+  const [otherUserAnswers, setOtherUserAnswers] = useState<OnboardingAnswer[]>([]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center p-4">
+      <div className="w-full max-w-md h-[812px] bg-[#FAF9F7] rounded-3xl shadow-2xl overflow-hidden relative">
+        {currentScreen === 'login' && (
+          <LoginScreen onNavigate={setCurrentScreen} />
+        )}
+        
+        {currentScreen === 'onboarding-fixed' && (
+          <OnboardingFixed 
+            onNavigate={setCurrentScreen}
+            onComplete={(answers) => {
+              setOnboardingAnswers(answers);
+              setCurrentScreen('onboarding-selectable');
+            }}
+          />
+        )}
+        
+        {currentScreen === 'onboarding-selectable' && (
+          <OnboardingSelectable 
+            existingAnswers={onboardingAnswers}
+            onNavigate={setCurrentScreen}
+            onComplete={(allAnswers) => {
+              setOnboardingAnswers(allAnswers);
+              // Generate soul color based on answers
+              const randomColor = [
+                { from: '#E8C4B8', to: '#D4A89F' },
+                { from: '#B8D4C4', to: '#9FBFAA' },
+                { from: '#C4B8E8', to: '#A89FD4' },
+                { from: '#E8D4B8', to: '#D4BF9F' },
+                { from: '#B8C4E8', to: '#9FA8D4' },
+              ][Math.floor(Math.random() * 5)];
+              setUserSoulColor(randomColor);
+              setCurrentScreen('soul-color');
+            }}
+          />
+        )}
+        
+        {currentScreen === 'soul-color' && (
+          <SoulColorResult 
+            soulColor={userSoulColor}
+            onNavigate={setCurrentScreen}
+          />
+        )}
+        
+        {currentScreen === 'create-prompt' && (
+          <CreateStartingPrompt 
+            userSoulColor={userSoulColor}
+            onNavigate={setCurrentScreen}
+          />
+        )}
+        
+        {currentScreen === 'lounge' && (
+          <LiveLounge 
+            userSoulColor={userSoulColor}
+            onNavigate={setCurrentScreen}
+            onSelectThought={setSelectedThought}
+          />
+        )}
+        
+        {currentScreen === 'inbox' && (
+          <HostInbox 
+            userSoulColor={userSoulColor}
+            onNavigate={setCurrentScreen}
+            onAccept={(thought) => {
+              setSelectedThought(thought);
+              // Simulate other user's answers
+              setOtherUserAnswers([
+                { question: "What brings you here today?", answer: "Looking for genuine conversations" },
+                { question: "What kind of conversation feels good to you?", answer: "Deep and meaningful" },
+                { question: "What makes you feel alive?", answer: "Connecting with others authentically" },
+                { question: "What's a question you love being asked?", answer: "What are you curious about lately?" },
+              ]);
+              setCurrentScreen('chat');
+            }}
+          />
+        )}
+        
+        {currentScreen === 'chat' && (
+          <ChatScreen 
+            userSoulColor={userSoulColor}
+            otherSoulColor={selectedThought?.soulColor || { from: '#B8C4E8', to: '#9FA8D4' }}
+            userAnswers={onboardingAnswers}
+            otherUserAnswers={otherUserAnswers}
+            onNavigate={setCurrentScreen}
+            onTimeEnd={() => setCurrentScreen('time-feedback')}
+          />
+        )}
+        
+        {currentScreen === 'time-feedback' && (
+          <TimeLimitFeedback 
+            onNavigate={setCurrentScreen}
+            onContinue={(userWants) => {
+              // Simulate other user's choice (50/50 for demo)
+              const otherUserWants = Math.random() > 0.5;
+              const bothWant = userWants && otherUserWants;
+              
+              if (bothWant) {
+                setCurrentScreen('match-confirmation');
+              } else {
+                setCurrentScreen('lounge');
+              }
+            }}
+          />
+        )}
+        
+        {currentScreen === 'match-confirmation' && (
+          <MatchConfirmation 
+            onNavigate={setCurrentScreen}
+            otherSoulColor={selectedThought?.soulColor || { from: '#B8C4E8', to: '#9FA8D4' }}
+            onContinueChat={() => {
+              setCurrentScreen('chat');
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
