@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Screen, OnboardingAnswer } from '../page';
-import { Shuffle, ChevronRight } from 'lucide-react';
+import { OnboardingAnswer } from '../page';
+import { ChevronRight } from 'lucide-react';
 
 interface OnboardingSelectableProps {
   existingAnswers: OnboardingAnswer[];
-  onNavigate: (screen: Screen) => void;
   onComplete: (allAnswers: OnboardingAnswer[]) => void;
 }
 
@@ -23,41 +22,27 @@ const allQuestions = [
   "What makes you curious about someone?",
 ];
 
-export function OnboardingSelectable({ existingAnswers, onNavigate, onComplete }: OnboardingSelectableProps) {
-  const [displayedQuestions, setDisplayedQuestions] = useState<string[]>(
-    shuffleArray([...allQuestions]).slice(0, 6)
-  );
-  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
+export function OnboardingSelectable({ existingAnswers, onComplete }: OnboardingSelectableProps) {
+  const [displayedQuestions, setDisplayedQuestions] = useState<string[]>(() => {
+    const questions = [...allQuestions];
+    for (let i = questions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+    }
+    return questions.slice(0, 6);
+  });
   const [currentAnswering, setCurrentAnswering] = useState<string | null>(null);
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [answers, setAnswers] = useState<OnboardingAnswer[]>([]);
 
-  function shuffleArray<T>(array: T[]): T[] {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  }
-
-  const handleShuffle = () => {
-    setDisplayedQuestions(shuffleArray([...allQuestions]).slice(0, 6));
-    setSelectedQuestions([]);
-  };
-
   const handleSelectQuestion = (question: string) => {
-    if (selectedQuestions.includes(question)) {
-      setSelectedQuestions(selectedQuestions.filter(q => q !== question));
-    } else if (selectedQuestions.length < 2) {
-      setSelectedQuestions([...selectedQuestions, question]);
+    // Don't allow selecting questions that have already been answered
+    if (answers.some(a => a.question === question)) {
+      return;
     }
-  };
-
-  const handleStartAnswering = () => {
-    if (selectedQuestions.length === 2) {
-      setCurrentAnswering(selectedQuestions[0]);
-    }
+    
+    // Redirect immediately to answer screen
+    setCurrentAnswering(question);
   };
 
   const handleSubmitAnswer = () => {
@@ -67,34 +52,46 @@ export function OnboardingSelectable({ existingAnswers, onNavigate, onComplete }
     setAnswers(newAnswers);
     setCurrentAnswer('');
 
-    const nextQuestionIndex = selectedQuestions.indexOf(currentAnswering) + 1;
-    if (nextQuestionIndex < selectedQuestions.length) {
-      setCurrentAnswering(selectedQuestions[nextQuestionIndex]);
-    } else {
-      // All done
+    // If we have 2 answers, we're done
+    if (newAnswers.length >= 2) {
       onComplete([...existingAnswers, ...newAnswers]);
+    } else {
+      // Replace answered question with a new one in displayedQuestions
+      const unansweredQuestions = allQuestions.filter(q => 
+        !newAnswers.some(a => a.question === q) && 
+        q !== currentAnswering
+      );
+      
+      if (unansweredQuestions.length > 0) {
+        // Replace the answered question in displayedQuestions
+        const newDisplayedQuestions = displayedQuestions.map(q => 
+          q === currentAnswering ? unansweredQuestions[0] : q
+        );
+        setDisplayedQuestions(newDisplayedQuestions);
+      }
+      setCurrentAnswering(null);
     }
   };
 
   // If currently answering a question
   if (currentAnswering) {
-    const currentIndex = selectedQuestions.indexOf(currentAnswering);
+    const currentQuestionNumber = answers.length + 1;
     return (
       <div className="h-full flex flex-col p-8 pt-16">
         {/* Progress indicator */}
         <div className="mb-12">
           <div className="flex gap-2 mb-2">
-            {selectedQuestions.map((_, index) => (
+            {[0, 1].map((index) => (
               <div
                 key={index}
                 className={`h-1 flex-1 rounded-full transition-all ${
-                  index <= currentIndex ? 'bg-[#3D3D3D]' : 'bg-[#E8E8E8]'
+                  index < currentQuestionNumber ? 'bg-[#3D3D3D]' : 'bg-[#E8E8E8]'
                 }`}
               />
             ))}
           </div>
           <p className="text-xs text-[#9B9B9B] text-right">
-            Step 3 of 3 · Question {currentIndex + 1} of 2
+            Step 3 of 3 · Question {currentQuestionNumber} of 2
           </p>
         </div>
 
@@ -142,10 +139,10 @@ export function OnboardingSelectable({ existingAnswers, onNavigate, onComplete }
 
       <div className="mb-6">
         <h2 className="text-2xl mb-3 leading-snug">
-          Choose 2 questions to answer
+          Choose a question to answer
         </h2>
         <p className="text-[#6B6B6B] text-sm">
-          Pick the ones that resonate with you
+          Pick one that resonates with you
         </p>
       </div>
 
@@ -153,28 +150,22 @@ export function OnboardingSelectable({ existingAnswers, onNavigate, onComplete }
       <div className="flex-1 overflow-y-auto -mx-2">
         <div className="grid grid-cols-2 gap-3 px-2">
           {displayedQuestions.map((question, index) => {
-            const isSelected = selectedQuestions.includes(question);
-            const selectionOrder = selectedQuestions.indexOf(question);
+            const isAnswered = answers.some(a => a.question === question);
             
             return (
               <button
                 key={index}
                 onClick={() => handleSelectQuestion(question)}
-                disabled={!isSelected && selectedQuestions.length >= 2}
+                disabled={isAnswered}
                 className={`p-4 rounded-2xl border-2 text-left transition-all min-h-[120px] flex items-center justify-center relative ${
-                  isSelected
-                    ? 'border-[#3D3D3D] bg-white'
-                    : 'border-[#E8E8E8] bg-white disabled:opacity-40'
+                  isAnswered
+                    ? 'border-[#E8E8E8] bg-white opacity-40 cursor-not-allowed'
+                    : 'border-[#E8E8E8] bg-white hover:border-[#3D3D3D] cursor-pointer'
                 }`}
               >
                 <p className="text-sm text-[#3D3D3D] leading-snug">
                   {question}
                 </p>
-                {isSelected && (
-                  <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#3D3D3D] text-white flex items-center justify-center text-xs">
-                    {selectionOrder + 1}
-                  </div>
-                )}
               </button>
             );
           })}
@@ -182,23 +173,8 @@ export function OnboardingSelectable({ existingAnswers, onNavigate, onComplete }
       </div>
 
       {/* Actions */}
-      <div className="space-y-3 mt-6">
-        <button
-          onClick={handleShuffle}
-          className="w-full py-3 bg-white border border-[#E8E8E8] text-[#6B6B6B] rounded-full flex items-center justify-center gap-2 hover:bg-[#F5F5F5] transition-all"
-        >
-          <Shuffle className="w-4 h-4" />
-          Shuffle Questions
-        </button>
-
-        <button
-          onClick={handleStartAnswering}
-          disabled={selectedQuestions.length !== 2}
-          className="w-full py-4 bg-[#3D3D3D] text-white rounded-full flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2D2D2D] transition-all"
-        >
-          Answer Selected
-          <ChevronRight className="w-5 h-5" />
-        </button>
+      <div className="mt-6">
+        {/* No shuffle button */}
       </div>
     </div>
   );
