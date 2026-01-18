@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/src/supabaseClient'
 import { getMessages, sendMessage } from '@/src/services/messages'
 
@@ -8,25 +8,40 @@ export default function RoomClient({ roomId }: { roomId: string }) {
   const [messages, setMessages] = useState<any[]>([])
   const [input, setInput] = useState('')
   const [name] = useState(() => 'Soul-' + Math.floor(Math.random() * 10000))
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom whenever messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
-    // Load initial messages
-    getMessages(roomId).then(({ data }) => {
+    scrollToBottom()
+  }, [messages])
+
+  // Fetch initial messages
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await getMessages(roomId)
+      if (error) return
       if (data) setMessages(data)
-    })
+    }
+
+    fetchMessages()
 
     // Subscribe to realtime updates
     const channel = supabase
-      .channel('room-' + roomId)
+      .channel(`room-${roomId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `room_id=eq.${roomId}`
+          filter: `room_id=eq.${roomId}`,
         },
         payload => {
+          console.log('Realtime new message:', payload.new)
           setMessages(m => [...m, payload.new as any])
         }
       )
@@ -39,7 +54,8 @@ export default function RoomClient({ roomId }: { roomId: string }) {
 
   const handleSend = async () => {
     if (!input.trim()) return
-    await sendMessage(roomId, input, name)
+    const { error } = await sendMessage(roomId, input, name)
+    if (error) return alert('Failed to send message: ' + error.message)
     setInput('')
   }
 
@@ -47,12 +63,15 @@ export default function RoomClient({ roomId }: { roomId: string }) {
     <div style={{ padding: 20 }}>
       <h2>Chat Room</h2>
 
-      <div style={{ marginBottom: 16, maxHeight: 400, overflowY: 'auto' }}>
+      <div
+        style={{ marginBottom: 16, maxHeight: 400, overflowY: 'auto' }}
+      >
         {messages.map(m => (
           <div key={m.id}>
             <strong>{m.sender_name}:</strong> {m.content}
           </div>
         ))}
+        <div ref={messagesEndRef}></div>
       </div>
 
       <input
