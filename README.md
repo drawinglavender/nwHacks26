@@ -1,22 +1,23 @@
 # SoulTalk - Soul Connection Platform
 
-A modern connection platform built with Next.js that helps users find meaningful connections through shared interests and soul color compatibility.
+A modern connection platform built with Next.js that helps users find meaningful connections through shared interests and soul colour compatibility.
 
 ## 🌟 Features
 
 ### Core Functionality
-- **Soul Color Discovery**: Interactive personality assessment that generates unique soul color profiles
+- **Voice Authetication**: Secure voice verification via ElevenLabs 
+- **Soul Colour Discovery**: Interactive personality assessment that generates unique soul colour profiles
 - **Live Lounge**: Real-time thought sharing and connection discovery
 - **Chat System**: Private messaging with timed conversations and progressive profile reveals
 - **Profile Management**: Onboarding process with customizable answers
-- **Match Confirmation**: Mutual interest confirmation system
+- **Match Confirmation**: Mutual interest confirmation system via Gemini
 
 ### Technical Features
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 - **Real-time Updates**: Live typing indicators and message delivery
 - **Progressive Reveals**: Profile information revealed gradually during conversations
 - **Timer System**: Time-limited conversations with extension options
-- **Soul Color Algorithm**: Unique color generation based on personality traits
+- **Soul Colour Algorithm**: Unique colour generation based on personality traits 
 
 ## 🚀 Getting Started
 
@@ -66,6 +67,7 @@ nwHacks26/
 │   │   ├── WelcomeScreen.tsx
 │   │   ├── CreateStartingPrompt.tsx
 │   │   └── LoginScreen.tsx
+│   │   └── VoiceVerification.tsx
 │   ├── lib/               # Utility libraries and services
 │   │   ├── constants/
 │   │   ├── hooks/
@@ -93,6 +95,7 @@ npm run lint         # Run ESLint
 - **TypeScript**: Full type safety
 - **Icons**: Custom SVG components
 - **State Management**: React hooks and context
+- **APIs used**: Gemini, ElevenLabs
 
 ## 📱 User Flow
 
@@ -105,8 +108,8 @@ npm run lint         # Run ESLint
 
 ## 🎯 Core Concepts
 
-### Soul Colors
-Each user receives a unique soul color based on their personality assessment:
+### Soul Colours
+Each user receives a unique soul colour based on their personality assessment:
 - **Gradient Generation**: Dynamic color combinations
 - **Compatibility Matching**: Algorithm-based pairing
 - **Visual Identity**: Consistent color representation throughout
