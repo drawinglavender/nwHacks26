@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Screen } from '../page';
 import { ChevronRight } from 'lucide-react';
+import { VoiceVerification } from './VoiceVerification';
+
+
 
 interface LoginScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -8,12 +11,27 @@ interface LoginScreenProps {
 
 export function LoginScreen({ onNavigate }: LoginScreenProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [showVoiceVerification, setShowVoiceVerification] = useState(false);
 
   const handleContinue = () => {
     if (phoneNumber.length >= 10) {
-      onNavigate('onboarding-fixed');
+      setShowVoiceVerification(true);
     }
   };
+
+  const handleVoiceVerified = () => {
+    onNavigate('onboarding-fixed');
+  };
+
+  if (showVoiceVerification) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-between p-8 pt-16 pb-8">
+        <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-4xl">
+          <VoiceVerification onVerified={handleVoiceVerified} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-between p-8 pt-16 pb-8">
@@ -45,7 +63,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             type="tel"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
-            placeholder="(555) 123-4567"
+            placeholder="(778) 899-0011"
             className="w-full px-6 py-5 bg-white rounded-2xl border border-[#E8E8E8] focus:outline-none focus:border-[#3D3D3D] transition-colors text-[#3D3D3D] placeholder:text-[#BEBEBE] text-center text-xl lg:text-2xl"
             maxLength={10}
             autoFocus
