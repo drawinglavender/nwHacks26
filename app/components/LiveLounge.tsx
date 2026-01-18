@@ -61,24 +61,24 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
   return (
     <div className="h-full flex flex-col bg-[#FAF9F7]">
       {/* Header */}
-      <div className="p-6 pb-4">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl">Live Lounge</h1>
+      <div className="p-8 pb-6">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl">Live Lounge</h1>
           <button 
             onClick={() => onNavigate('inbox')}
-            className="w-10 h-10 rounded-full bg-white border border-[#E8E8E8] flex items-center justify-center"
+            className="w-14 h-14 rounded-full bg-white border border-[#E8E8E8] flex items-center justify-center"
           >
-            <MessageCircle className="w-5 h-5 text-[#3D3D3D]" />
+            <MessageCircle className="w-7 h-7 text-[#3D3D3D]" />
           </button>
         </div>
 
         {/* Filter chips */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6">
+        <div className="flex gap-3 overflow-x-auto pb-3 -mx-8 px-8">
           {['Light', 'Deep', 'Curious'].map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(activeFilter === filter ? null : filter)}
-              className={`px-5 py-2 rounded-full whitespace-nowrap text-sm transition-all ${
+              className={`px-6 py-3 rounded-full whitespace-nowrap text-base transition-all ${
                 activeFilter === filter
                   ? 'bg-[#3D3D3D] text-white'
                   : 'bg-white border border-[#E8E8E8] text-[#6B6B6B]'
@@ -91,7 +91,7 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
       </div>
 
       {/* Thoughts feed */}
-      <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-8 space-y-6 pb-32">
         {filteredThoughts.map((thought) => (
           <div
             key={thought.id}
@@ -99,27 +99,27 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
               onSelectThought(thought);
               onNavigate('chat');
             }}
-            className="bg-white rounded-3xl p-6 border border-[#E8E8E8] hover:border-[#C8C8C8] transition-all cursor-pointer"
+            className="bg-white rounded-3xl p-8 border border-[#E8E8E8] hover:border-[#C8C8C8] transition-all cursor-pointer max-w-4xl mx-auto"
           >
-            <div className="flex items-start gap-4 mb-4">
+            <div className="flex items-start gap-6 mb-6">
               <div
-                className="w-12 h-12 rounded-full flex-shrink-0"
+                className="w-16 h-16 rounded-full flex-shrink-0"
                 style={{
                   background: `linear-gradient(135deg, ${thought.soulColor.from} 0%, ${thought.soulColor.to} 100%)`,
                 }}
               />
               <div className="flex-1">
-                <p className="text-[#3D3D3D] leading-relaxed">
+                <p className="text-lg text-[#3D3D3D] leading-relaxed">
                   {thought.text}
                 </p>
               </div>
             </div>
             
             <div className="flex items-center justify-between">
-              <span className="text-xs px-3 py-1 bg-[#F5F5F5] text-[#6B6B6B] rounded-full">
+              <span className="text-sm px-4 py-2 bg-[#F5F5F5] text-[#6B6B6B] rounded-full">
                 {thought.tag}
               </span>
-              <span className="text-xs text-[#9B9B9B]">
+              <span className="text-sm text-[#9B9B9B]">
                 {thought.timeLeft} min left
               </span>
             </div>
@@ -128,12 +128,12 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
       </div>
 
       {/* Floating action button */}
-      <div className="absolute bottom-6 right-6">
+      <div className="absolute bottom-8 right-8">
         <button
-          onClick={() => onNavigate('create-thought')}
-          className="w-16 h-16 rounded-full bg-[#3D3D3D] text-white flex items-center justify-center shadow-xl hover:bg-[#2D2D2D] transition-all hover:scale-105"
+          onClick={() => onNavigate('create-prompt')}
+          className="w-20 h-20 rounded-full bg-[#3D3D3D] text-white flex items-center justify-center shadow-xl hover:bg-[#2D2D2D] transition-all hover:scale-105"
         >
-          <Plus className="w-7 h-7" />
+          <Plus className="w-9 h-9" />
         </button>
       </div>
     </div>

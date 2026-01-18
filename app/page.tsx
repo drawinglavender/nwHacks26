@@ -45,7 +45,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center p-4">
-      <div className="w-full max-w-md h-[812px] bg-[#FAF9F7] rounded-3xl shadow-2xl overflow-hidden relative">
+      <div className="w-full h-screen max-w-[1440px] max-h-[1024px] bg-[#FAF9F7] rounded-3xl shadow-2xl overflow-hidden relative">
         {currentScreen === 'login' && (
           <LoginScreen onNavigate={setCurrentScreen} />
         )}

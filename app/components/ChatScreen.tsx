@@ -32,20 +32,22 @@ export function ChatScreen({
   onNavigate, 
   onTimeEnd 
 }: ChatScreenProps) {
-  const [messages, setMessages] = useState<Message[]>([
+  const initialMessages: Message[] = [
     {
-      id: 1,
+      id: 1001,
       text: "Hey, thanks for accepting. I really connected with your prompt.",
       sender: 'other',
-      timestamp: new Date(Date.now() - 120000),
+      timestamp: new Date('2024-01-01T10:00:00'),
     },
     {
-      id: 2,
+      id: 1002,
       text: "Thanks! I've been thinking about this a lot lately.",
       sender: 'user',
-      timestamp: new Date(Date.now() - 60000),
+      timestamp: new Date('2024-01-01T10:01:00'),
     },
-  ]);
+  ];
+
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState('');
   const [timeLeft, setTimeLeft] = useState(30); // minutes
   const [revealedAnswers, setRevealedAnswers] = useState<RevealMoment[]>([]);
@@ -99,7 +101,7 @@ export function ChatScreen({
     if (!newMessage.trim()) return;
 
     const newMsg: Message = {
-      id: messages.length + 1,
+      id: Date.now(),
       text: newMessage,
       sender: 'user',
       timestamp: new Date(),
@@ -117,7 +119,7 @@ export function ChatScreen({
         "That's a good point.",
       ];
       const reply: Message = {
-        id: messages.length + 2,
+        id: Date.now() + 1,
         text: replies[Math.floor(Math.random() * replies.length)],
         sender: 'other',
         timestamp: new Date(),
@@ -129,31 +131,31 @@ export function ChatScreen({
   return (
     <div className="h-full flex flex-col bg-[#FAF9F7]">
       {/* Header */}
-      <div className="p-4 bg-white border-b border-[#E8E8E8]">
-        <div className="flex items-center justify-between mb-3">
+      <div className="p-6 bg-white border-b border-[#E8E8E8]">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => onNavigate('lounge')}
-            className="w-10 h-10 rounded-full bg-[#F5F5F5] flex items-center justify-center"
+            className="w-14 h-14 rounded-full bg-[#F5F5F5] flex items-center justify-center"
           >
-            <ArrowLeft className="w-5 h-5 text-[#3D3D3D]" />
+            <ArrowLeft className="w-7 h-7 text-[#3D3D3D]" />
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div
-              className="w-8 h-8 rounded-full"
+              className="w-12 h-12 rounded-full"
               style={{
                 background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`,
               }}
             />
             <div
-              className="w-8 h-8 rounded-full"
+              className="w-12 h-12 rounded-full"
               style={{
                 background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`,
               }}
             />
           </div>
 
-          <div className="w-10" /> {/* Spacer */}
+          <div className="w-14" /> {/* Spacer */}
         </div>
 
         {/* Timer */}
@@ -171,7 +173,7 @@ export function ChatScreen({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.map((message, index) => {
           // Check if there's a reveal moment after this message
           const revealAfter = revealedAnswers.find(r => {
@@ -185,13 +187,13 @@ export function ChatScreen({
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[75%] px-5 py-3 rounded-3xl ${
+                  className={`max-w-[70%] px-6 py-4 rounded-3xl ${
                     message.sender === 'user'
                       ? 'bg-[#3D3D3D] text-white rounded-br-lg'
                       : 'bg-white border border-[#E8E8E8] text-[#3D3D3D] rounded-bl-lg'
                   }`}
                 >
-                  <p className="leading-relaxed">{message.text}</p>
+                  <p className="text-base leading-relaxed">{message.text}</p>
                 </div>
               </div>
 
@@ -230,22 +232,22 @@ export function ChatScreen({
       </div>
 
       {/* Input */}
-      <div className="p-4 bg-white border-t border-[#E8E8E8]">
-        <div className="flex gap-3">
+      <div className="p-6 bg-white border-t border-[#E8E8E8]">
+        <div className="flex gap-4 max-w-4xl mx-auto">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Talk in the moment..."
-            className="flex-1 px-5 py-3 bg-[#F5F5F5] rounded-full focus:outline-none text-[#3D3D3D] placeholder:text-[#BEBEBE]"
+            className="flex-1 px-6 py-4 bg-[#F5F5F5] rounded-full focus:outline-none text-[#3D3D3D] placeholder:text-[#BEBEBE] text-base"
           />
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className="w-12 h-12 bg-[#3D3D3D] text-white rounded-full flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2D2D2D] transition-all"
+            className="w-14 h-14 bg-[#3D3D3D] text-white rounded-full flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2D2D2D] transition-all"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-7 h-7" />
           </button>
         </div>
       </div>
