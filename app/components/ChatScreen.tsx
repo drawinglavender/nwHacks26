@@ -96,6 +96,7 @@ export function ChatScreen({
   const [showChatEndModal, setShowChatEndModal] = useState(false);
   const [chatEndState, setChatEndState] = useState<'initial' | 'loading' | 'matched'>('initial');
   const [isMatched, setIsMatched] = useState(false);
+  const [activePopupReveal, setActivePopupReveal] = useState<RevealMoment | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const totalTime = 30; // total conversation time in seconds
@@ -162,6 +163,8 @@ export function ChatScreen({
             sender: isOtherUser ? 'other' : 'user'
           };
           setRevealedAnswers(prev => [...prev, newReveal]);
+          // Show popup for new reveal
+          setActivePopupReveal(newReveal);
         }
       }
     });
@@ -238,39 +241,49 @@ export function ChatScreen({
             </div>
           </div>
 
-          {!isMatched && (
-            <div className="text-right">
-              <p className="text-xs text-black uppercase tracking-wide">Remaining Time:</p>
-              <div className="flex items-center gap-2">
-                <div 
-                  className={`w-5 h-5 rounded-full transition-all duration-1000 ${
-                    timeLeft > 20 ? 'bg-green-500' : 
-                    timeLeft > 10 ? 'bg-orange-500' : 
-                    'bg-red-500'
-                  } ${
-                    timeLeft <= reminderThreshold && !showChatEndModal ? 'animate-pulse-fast' : ''
-                  }`}
-                />
-                <p className="text-2xl lg:text-3xl text-black font-normal">
-                  {`00:${timeLeft.toString().padStart(2, '0')}`}
-                </p>
-              </div>
+          <div className={`text-right transition-all duration-300 ${
+            isMatched ? 'opacity-0 pointer-events-none' : ''
+          }`}>
+            <p className={`text-xs uppercase tracking-wide transition-colors duration-300 ${
+              isMatched ? 'text-white' : 'text-black'
+            }`}>
+              Remaining Time:
+            </p>
+            <div className="flex items-center gap-2">
+              <div 
+                className={`w-5 h-5 rounded-full transition-all duration-1000 ${
+                  timeLeft > 20 ? 'bg-green-500' : 
+                  timeLeft > 10 ? 'bg-orange-500' : 
+                  'bg-red-500'
+                } ${
+                  timeLeft <= reminderThreshold && !showChatEndModal ? 'animate-pulse-fast' : ''
+                } ${
+                  isMatched ? 'bg-white' : ''
+                }`}
+              />
+              <p className={`text-2xl lg:text-3xl font-normal transition-colors duration-300 ${
+                isMatched ? 'text-white' : 'text-black'
+              }`}>
+                {`00:${timeLeft.toString().padStart(2, '0')}`}
+              </p>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Progress Bar - hide when matched */}
-        {!isMatched && (
-          <div className="h-2 bg-[#F4F2E5] rounded-full overflow-hidden">
-            <div
-                className="h-full bg-gradient-to-r from-[#F3EF81] to-[#81E8F3] transition-width duration-1000 ease-linear"
-                style={{ 
-                  width: `${(timeLeft / 30) * 100}%`,
-                  transition: 'width 1s linear'
-                }}
-              />
-          </div>
-        )}
+        {/* Progress Bar - static and full when matched */}
+        <div className={`h-2 rounded-full overflow-hidden transition-all duration-300 ${
+          isMatched ? 'bg-[#F4F2E5]' : 'bg-[#F4F2E5]'
+        }`}>
+          <div
+              className={`h-full transition-width duration-1000 ease-linear ${
+                isMatched ? 'bg-gradient-to-r from-[#F3EF81] to-[#81E8F3]' : 'bg-gradient-to-r from-[#F3EF81] to-[#81E8F3]'
+              }`}
+              style={{ 
+                width: isMatched ? '100%' : `${(timeLeft / 30) * 100}%`,
+                transition: 'width 1s linear'
+              }}
+            />
+        </div>
       </div>
 
       {/* Helper Text */}
@@ -312,32 +325,21 @@ export function ChatScreen({
                 </div>
               </div>
 
-              {/* Progressive reveal card */}
+              {/* Inline reveal component */}
               {revealAfter && (
                 <div className="flex justify-center py-2">
-                  <div className="max-w-[85%] bg-[#F5F5F5] rounded-2xl p-5 border border-[#E8E8E8]">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div
-                        className="w-8 h-8 rounded-full"
-                        style={{
-                          background: `linear-gradient(135deg, ${
-                            revealAfter.sender === 'user' 
-                              ? `${userSoulColor.from} 0%, ${userSoulColor.to}` 
-                              : `${otherSoulColor.from} 0%, ${otherSoulColor.to}`
-                          } 100%)`,
-                        }}
-                      />
-                      <p className="text-xs text-[#9B9B9B]">
-                        {revealAfter.sender === 'user' ? 'You' : 'They'} shared more
-                      </p>
+                  <button
+                    onClick={() => setActivePopupReveal(revealAfter)}
+                    className="group flex flex-row items-center justify-between px-5 py-3.5 gap-3.5 bg-white border border-[#E9E9E9] rounded-[25px] hover:shadow-md transition-all duration-200 max-w-[85%]"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[14px] text-[#5A5A5A]">🔓</span>
+                      <span className="text-[14px] text-[#5A5A5A]">
+                        You&apos;ve unlocked something meaningful. This detail can be revisited anytime.
+                      </span>
                     </div>
-                    <p className="text-xs text-[#6B6B6B] mb-2 italic">
-                      {revealAfter.answer.question}
-                    </p>
-                    <p className="text-sm text-[#3D3D3D]">
-                      {revealAfter.answer.answer}
-                    </p>
-                  </div>
+                    <div className="w-3 h-2 bg-[#ADA703] rotate-90" />
+                  </button>
                 </div>
               )}
             </React.Fragment>
@@ -488,6 +490,40 @@ export function ChatScreen({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+    {/* Reveal Popup Modal */}
+      {activePopupReveal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
+          onClick={() => setActivePopupReveal(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl p-6 border border-[#E8E8E8] max-w-[85%] mx-4 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className="w-8 h-8 rounded-full"
+                style={{
+                  background: `linear-gradient(135deg, ${
+                    activePopupReveal.sender === 'user' 
+                      ? `${userSoulColor.from} 0%, ${userSoulColor.to}` 
+                      : `${otherSoulColor.from} 0%, ${otherSoulColor.to}`
+                  } 100%)`,
+                }}
+              />
+              <p className="text-xs text-[#9B9B9B]">
+                {activePopupReveal.sender === 'user' ? 'You' : 'They'} shared more
+              </p>
+            </div>
+            <p className="text-xs text-[#6B6B6B] mb-2 italic">
+              {activePopupReveal.answer.question}
+            </p>
+            <p className="text-sm text-[#3D3D3D]">
+              {activePopupReveal.answer.answer}
+            </p>
           </div>
         </div>
       )}
