@@ -16,8 +16,8 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-between p-12 pt-24 pb-16">
-      <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-2xl">
+    <div className="h-screen w-screen flex flex-col items-center justify-between p-8 pt-16 pb-8">
+      <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-4xl">
         <div className="mb-16">
           <div 
             className="w-32 h-32 rounded-full mx-auto mb-12"
@@ -29,16 +29,16 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
           />
         </div>
         
-        <h1 className="text-5xl mb-6 tracking-tight">
+        <h1 className="text-5xl lg:text-6xl mb-6 tracking-tight">
           Soul Talk
         </h1>
         
-        <p className="text-[#6B6B6B] text-lg max-w-md leading-relaxed mb-16">
+        <p className="text-[#6B6B6B] text-lg lg:text-xl max-w-2xl leading-relaxed mb-16">
           Connect through thoughts, not profiles.
         </p>
 
-        <div className="w-full max-w-md">
-          <label className="text-base text-[#6B6B6B] mb-4 block text-left">
+        <div className="w-full max-w-lg">
+          <label className="text-base lg:text-lg text-[#6B6B6B] mb-4 block text-left">
             Enter your phone number
           </label>
           <input
@@ -46,12 +46,12 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
             placeholder="(555) 123-4567"
-            className="w-full px-6 py-5 bg-white rounded-2xl border border-[#E8E8E8] focus:outline-none focus:border-[#3D3D3D] transition-colors text-[#3D3D3D] placeholder:text-[#BEBEBE] text-center text-xl"
+            className="w-full px-6 py-5 bg-white rounded-2xl border border-[#E8E8E8] focus:outline-none focus:border-[#3D3D3D] transition-colors text-[#3D3D3D] placeholder:text-[#BEBEBE] text-center text-xl lg:text-2xl"
             maxLength={10}
             autoFocus
           />
-          <p className="text-sm text-[#9B9B9B] mt-4 text-center">
-            We'll send you a verification code
+          <p className="text-sm lg:text-base text-[#9B9B9B] mt-4 text-center">
+            We&apos;ll send you a verification code
           </p>
         </div>
       </div>
@@ -59,10 +59,10 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
       <button
         onClick={handleContinue}
         disabled={phoneNumber.length < 10}
-        className="w-full max-w-md py-5 bg-[#3D3D3D] text-white rounded-full text-xl hover:bg-[#2D2D2D] transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+        className="w-full max-w-lg py-5 bg-[#3D3D3D] text-white rounded-full text-xl lg:text-2xl hover:bg-[#2D2D2D] transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
       >
         Continue
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-6 h-6 lg:w-7 lg:h-7" />
       </button>
     </div>
   );
