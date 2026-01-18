@@ -45,7 +45,7 @@ export function LoginScreen({ onNavigate }: LoginScreenProps) {
             type="tel"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
-            placeholder="(555) 123-4567"
+            placeholder="(778) 899-0011"
             className="w-full px-6 py-5 bg-white rounded-2xl border border-[#E8E8E8] focus:outline-none focus:border-[#3D3D3D] transition-colors text-[#3D3D3D] placeholder:text-[#BEBEBE] text-center text-xl lg:text-2xl"
             maxLength={10}
             autoFocus
