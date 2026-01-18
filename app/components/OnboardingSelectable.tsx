@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { OnboardingAnswer } from '../page';
+import { OnboardingAnswer, Screen } from '../page';
 import { ChevronRight } from 'lucide-react';
 
 interface OnboardingSelectableProps {
   existingAnswers: OnboardingAnswer[];
+  onNavigate?: (screen: Screen) => void;
   onComplete: (allAnswers: OnboardingAnswer[]) => void;
 }
 

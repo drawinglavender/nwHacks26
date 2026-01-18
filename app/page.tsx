@@ -52,7 +52,6 @@ export default function Home() {
         
         {currentScreen === 'onboarding-fixed' && (
           <OnboardingFixed 
-            onNavigate={setCurrentScreen}
             onComplete={(answers) => {
               setOnboardingAnswers(answers);
               setCurrentScreen('onboarding-selectable');

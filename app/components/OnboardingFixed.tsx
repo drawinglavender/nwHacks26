@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { Screen, OnboardingAnswer } from '../page';
-import { ChevronRight } from 'lucide-react';
+import { OnboardingAnswer } from '../page';
 
 interface OnboardingFixedProps {
-  onNavigate: (screen: Screen) => void;
   onComplete: (answers: OnboardingAnswer[]) => void;
 }
 
@@ -30,7 +28,7 @@ const fixedQuestions = [
   },
 ];
 
-export function OnboardingFixed({ onNavigate, onComplete }: OnboardingFixedProps) {
+export function OnboardingFixed({ onComplete }: OnboardingFixedProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<OnboardingAnswer[]>([]);
 
