@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import { LoginScreen } from './components/LoginScreen';
 import { OnboardingFixed } from './components/OnboardingFixed';
@@ -29,23 +27,17 @@ export interface OnboardingAnswer {
   answer: string;
 }
 
-export interface Thought {
-  id: string;
-  content: string;
-  soulColor: { from: string; to: string };
-  author: string;
-}
-
-export default function Home() {
+export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
   const [userSoulColor, setUserSoulColor] = useState({ from: '#E8C4B8', to: '#D4A89F' });
-  const [selectedThought, setSelectedThought] = useState<Thought | null>(null);
+  const [selectedThought, setSelectedThought] = useState<any>(null);
   const [onboardingAnswers, setOnboardingAnswers] = useState<OnboardingAnswer[]>([]);
   const [otherUserAnswers, setOtherUserAnswers] = useState<OnboardingAnswer[]>([]);
+  const [bothWantToContinue, setBothWantToContinue] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center">
-      <div className="w-screen h-screen bg-[#FAF9F7] overflow-hidden relative">
+    <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center p-4">
+      <div className="w-full max-w-md h-[812px] bg-[#FAF9F7] rounded-3xl shadow-2xl overflow-hidden relative">
         {currentScreen === 'login' && (
           <LoginScreen onNavigate={setCurrentScreen} />
         )}
@@ -138,6 +130,7 @@ export default function Home() {
               // Simulate other user's choice (50/50 for demo)
               const otherUserWants = Math.random() > 0.5;
               const bothWant = userWants && otherUserWants;
+              setBothWantToContinue(bothWant);
               
               if (bothWant) {
                 setCurrentScreen('match-confirmation');
