@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElevenLabs Live STT Demo</title>
+</head>
+<body>
+<h1>Live Speech-to-Text (ElevenLabs)</h1>
+<button id="startBtn">Start Recording</button>
+<button id="stopBtn">Stop</button>
+<div id="transcript">Transcript will appear here...</div>
+
+<script type="module">
+import { Scribe, RealtimeEvents } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client/dist/esm/index.js";
+
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const transcriptDiv = document.getElementById("transcript");
+
+let connection;
+
+async function fetchToken() {
+  const res = await fetch("http://localhost:4001/scribe-token");
+  const data = await res.json();
+  return data.token;
+}
+
+startBtn.onclick = async () => {
+  const token = await fetchToken();
+
+  connection = Scribe.connect({
+    token,
+    modelId: "scribe_v2_realtime",
+    includeTimestamps: false,
+    microphone: { echoCancellation: true, noiseSuppression: true },
+  });
+
+  connection.on(RealtimeEvents.SESSION_STARTED, () => {
+    console.log("Session started");
+  });
+
+  connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data) => {
+    transcriptDiv.textContent = "Live: " + data.text;
+  });
+
+  connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data) => {
+    transcriptDiv.textContent += "\n" + data.text;
+  });
+
+  connection.on(RealtimeEvents.ERROR, (err) => console.error("Error:", err));
+  connection.on(RealtimeEvents.CLOSE, () => console.log("Connection closed"));
+};
+
+stopBtn.onclick = () => {
+  if (connection) connection.close();
+};
+</script>
+</body>
+</html>
