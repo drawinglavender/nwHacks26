@@ -128,6 +128,17 @@ export function ChatScreen({
       if (isMatch) {
         setChatEndState('matched');
         setIsMatched(true);
+        
+        // Save chat history to localStorage when matched
+        const chatHistory = {
+          messages: messages,
+          revealedAnswers: revealedAnswers,
+          userSoulColor,
+          otherSoulColor,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+        
         // Auto-close after 3 seconds and remove timer
         setTimeout(() => {
           setShowChatEndModal(false);
@@ -146,29 +157,54 @@ export function ChatScreen({
   useEffect(() => {
     const messageCount = messages.length;
     
-    // Reveal at specific message counts
-    const revealThresholds = [10, 20, 30, 40];
-    
-    revealThresholds.forEach((threshold, index) => {
-      if (messageCount === threshold) {
-        // Alternate between revealing other user's and user's answers
-        const isOtherUser = index % 2 === 0;
-        const answerPool = isOtherUser ? otherUserAnswers : userAnswers;
-        const alreadyRevealed = revealedAnswers.filter(r => r.sender === (isOtherUser ? 'other' : 'user')).length;
+    // Reveal logic for both timed and matched conversations
+    if (isMatched) {
+      // After match, reveal every 15 messages
+      const revealInterval = 15;
+      const messagesSinceLastReveal = messageCount - (revealedAnswers[revealedAnswers.length - 1]?.messageCount || 0);
+      
+      if (messagesSinceLastReveal >= revealInterval && revealedAnswers.length < (userAnswers.length + otherUserAnswers.length)) {
+        const nextSender = revealedAnswers.length % 2 === 0 ? 'user' : 'other';
+        const answerPool = nextSender === 'user' ? userAnswers : otherUserAnswers;
+        const alreadyRevealed = revealedAnswers.filter(r => r.sender === nextSender).length;
         
         if (alreadyRevealed < answerPool.length) {
           const newReveal: RevealMoment = {
-            messageCount: threshold,
+            messageCount: messageCount,
             answer: answerPool[alreadyRevealed],
-            sender: isOtherUser ? 'other' : 'user'
+            sender: nextSender
           };
-          setRevealedAnswers(prev => [...prev, newReveal]);
-          // Show popup for new reveal
-          setActivePopupReveal(newReveal);
+          setTimeout(() => {
+            setRevealedAnswers(prev => [...prev, newReveal]);
+            setActivePopupReveal(newReveal);
+          }, 0);
         }
       }
-    });
-  }, [messages.length, otherUserAnswers, userAnswers, revealedAnswers]);
+    } else {
+      // During timed conversation, reveal at specific message counts
+      const revealThresholds = [10, 20, 30, 40];
+      
+      revealThresholds.forEach((threshold, index) => {
+        if (messageCount === threshold) {
+          // Alternate between revealing other user's and user's answers
+          const isOtherUser = index % 2 === 0;
+          const answerPool = isOtherUser ? otherUserAnswers : userAnswers;
+          const alreadyRevealed = revealedAnswers.filter(r => r.sender === (isOtherUser ? 'other' : 'user')).length;
+          
+          if (alreadyRevealed < answerPool.length) {
+            const newReveal: RevealMoment = {
+              messageCount: threshold,
+              answer: answerPool[alreadyRevealed],
+              sender: isOtherUser ? 'other' : 'user'
+            };
+            setRevealedAnswers(prev => [...prev, newReveal]);
+            // Show popup for new reveal
+            setActivePopupReveal(newReveal);
+          }
+        }
+      });
+    }
+  }, [messages.length, otherUserAnswers, userAnswers, revealedAnswers, isMatched]);
 
   const handleSend = () => {
     if (!newMessage.trim()) return;
