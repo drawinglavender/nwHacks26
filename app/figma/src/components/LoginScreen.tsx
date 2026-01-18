@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Screen } from '../App';
 import { ChevronRight } from 'lucide-react';
+import { createUser } from '@/src/services/users';
 
 interface LoginScreenProps {
   onNavigate: (screen: Screen) => void;
