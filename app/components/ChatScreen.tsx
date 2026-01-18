@@ -129,33 +129,33 @@ export function ChatScreen({
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#FAF9F7]">
+    <div className="h-screen w-screen flex flex-col bg-[#FAF9F7]">
       {/* Header */}
-      <div className="p-6 bg-white border-b border-[#E8E8E8]">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-4 lg:p-6 bg-white border-b border-[#E8E8E8]">
+        <div className="flex items-center justify-between mb-3 lg:mb-4">
           <button
             onClick={() => onNavigate('lounge')}
-            className="w-14 h-14 rounded-full bg-[#F5F5F5] flex items-center justify-center"
+            className="w-10 h-10 lg:w-14 lg:h-14 rounded-full bg-[#F5F5F5] flex items-center justify-center"
           >
-            <ArrowLeft className="w-7 h-7 text-[#3D3D3D]" />
+            <ArrowLeft className="w-5 h-5 lg:w-7 lg:h-7 text-[#3D3D3D]" />
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 lg:gap-3">
             <div
-              className="w-12 h-12 rounded-full"
+              className="w-8 h-8 lg:w-12 lg:h-12 rounded-full"
               style={{
                 background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`,
               }}
             />
             <div
-              className="w-12 h-12 rounded-full"
+              className="w-8 h-8 lg:w-12 lg:h-12 rounded-full"
               style={{
                 background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`,
               }}
             />
           </div>
 
-          <div className="w-14" /> {/* Spacer */}
+          <div className="w-10 lg:w-14" /> {/* Spacer */}
         </div>
 
         {/* Timer */}
@@ -173,7 +173,7 @@ export function ChatScreen({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
         {messages.map((message, index) => {
           // Check if there's a reveal moment after this message
           const revealAfter = revealedAnswers.find(r => {
@@ -187,13 +187,13 @@ export function ChatScreen({
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[70%] px-6 py-4 rounded-3xl ${
+                  className={`max-w-[70%] lg:max-w-[75%] px-4 lg:px-6 py-3 lg:py-4 rounded-2xl lg:rounded-3xl ${
                     message.sender === 'user'
                       ? 'bg-[#3D3D3D] text-white rounded-br-lg'
                       : 'bg-white border border-[#E8E8E8] text-[#3D3D3D] rounded-bl-lg'
                   }`}
                 >
-                  <p className="text-base leading-relaxed">{message.text}</p>
+                  <p className="text-sm lg:text-base leading-relaxed">{message.text}</p>
                 </div>
               </div>
 
@@ -232,22 +232,22 @@ export function ChatScreen({
       </div>
 
       {/* Input */}
-      <div className="p-6 bg-white border-t border-[#E8E8E8]">
-        <div className="flex gap-4 max-w-4xl mx-auto">
+      <div className="p-4 lg:p-6 bg-white border-t border-[#E8E8E8]">
+        <div className="flex gap-3 lg:gap-4 max-w-6xl mx-auto">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Talk in the moment..."
-            className="flex-1 px-6 py-4 bg-[#F5F5F5] rounded-full focus:outline-none text-[#3D3D3D] placeholder:text-[#BEBEBE] text-base"
+            className="flex-1 px-4 lg:px-6 py-3 lg:py-4 bg-[#F5F5F5] rounded-full focus:outline-none text-[#3D3D3D] placeholder:text-[#BEBEBE] text-sm lg:text-base"
           />
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className="w-14 h-14 bg-[#3D3D3D] text-white rounded-full flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2D2D2D] transition-all"
+            className="w-10 h-10 lg:w-14 lg:h-14 bg-[#3D3D3D] text-white rounded-full flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2D2D2D] transition-all"
           >
-            <Send className="w-7 h-7" />
+            <Send className="w-5 h-5 lg:w-7 lg:h-7" />
           </button>
         </div>
       </div>

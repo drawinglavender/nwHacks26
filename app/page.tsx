@@ -44,8 +44,8 @@ export default function Home() {
   const [otherUserAnswers, setOtherUserAnswers] = useState<OnboardingAnswer[]>([]);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center p-4">
-      <div className="w-full h-screen max-w-[1440px] max-h-[1024px] bg-[#FAF9F7] rounded-3xl shadow-2xl overflow-hidden relative">
+    <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center">
+      <div className="w-screen h-screen bg-[#FAF9F7] overflow-hidden relative">
         {currentScreen === 'login' && (
           <LoginScreen onNavigate={setCurrentScreen} />
         )}
