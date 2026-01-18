@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Screen } from '../page';
 import { ChevronRight } from 'lucide-react';
+import { VoiceVerification } from './VoiceVerification';
+
+
 
 interface LoginScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -8,12 +11,27 @@ interface LoginScreenProps {
 
 export function LoginScreen({ onNavigate }: LoginScreenProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [showVoiceVerification, setShowVoiceVerification] = useState(false);
 
   const handleContinue = () => {
     if (phoneNumber.length >= 10) {
-      onNavigate('onboarding-fixed');
+      setShowVoiceVerification(true);
     }
   };
+
+  const handleVoiceVerified = () => {
+    onNavigate('onboarding-fixed');
+  };
+
+  if (showVoiceVerification) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-between p-8 pt-16 pb-8">
+        <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-4xl">
+          <VoiceVerification onVerified={handleVoiceVerified} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-between p-8 pt-16 pb-8">
