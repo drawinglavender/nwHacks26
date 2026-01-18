@@ -120,7 +120,7 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
                 {thought.tag}
               </span>
               <span className="text-xs lg:text-sm text-[#9B9B9B]">
-                {thought.timeLeft} min left
+                Available
               </span>
             </div>
           </div>

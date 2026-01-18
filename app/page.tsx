@@ -127,7 +127,6 @@ export default function Home() {
             userAnswers={onboardingAnswers}
             otherUserAnswers={otherUserAnswers}
             onNavigate={setCurrentScreen}
-            onTimeEnd={() => setCurrentScreen('time-feedback')}
           />
         )}
         
