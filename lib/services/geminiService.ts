@@ -3,7 +3,7 @@ import { SOUL_COLORS, getSoulColorById } from '@/lib/constants/soulColors';
 // Using Google's official SDK
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'AIzaSyBF7BFSbtRyJwa1SxFxR6YEPqSepXhf2_w');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
 export async function assignSoulColor(userResponses: string[]): Promise<string> {
   try {
