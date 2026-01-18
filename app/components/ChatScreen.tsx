@@ -2,6 +2,49 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Screen, OnboardingAnswer } from '../page';
 import { ArrowLeft, Send } from 'lucide-react';
 
+// Custom zoom animation styles
+const zoomAnimation = `
+  @keyframes zoom-pulse {
+    0%, 100% {
+      transform: scale(1);
+      font-weight: 500;
+    }
+    50% {
+      transform: scale(1.05);
+      font-weight: 600;
+    }
+  }
+  .animate-zoom-pulse {
+    animation: zoom-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes rotate-dots {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-rotate {
+    animation: rotate-dots 2s linear infinite;
+  }
+
+  @keyframes pulse-fast {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(0.95);
+    }
+  }
+  .animate-pulse-fast {
+    animation: pulse-fast 0.8s ease-in-out infinite;
+  }
+`;
+
 interface ChatScreenProps {
   userSoulColor: { from: string; to: string };
   otherSoulColor: { from: string; to: string };
@@ -55,6 +98,9 @@ export function ChatScreen({
   const [isMatched, setIsMatched] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const totalTime = 30; // total conversation time in seconds
+  const reminderThreshold = totalTime * 0.15; // 15% of total time (4.5 seconds)
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, revealedAnswers, isTyping]);
@@ -96,7 +142,6 @@ export function ChatScreen({
     onNavigate('lounge');
   };
 
-  // Progressive reveal logic
   useEffect(() => {
     const messageCount = messages.length;
     
@@ -163,6 +208,7 @@ export function ChatScreen({
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#F9F9F8]">
+      <style>{zoomAnimation}</style>
       {/* Header */}
       <div className="px-4 lg:px-6 pt-12 lg:pt-12 pb-4 bg-white border-b border-[#E6E6E6] space-y-3">
         <div className="flex items-center justify-between">
@@ -192,32 +238,57 @@ export function ChatScreen({
             </div>
           </div>
 
-          <div className="text-right">
-            <p className="text-xs text-[#898989] uppercase tracking-wide">Remaining Time</p>
-            <p className="text-xl text-[#3D3D3D]">{!isMatched ? `${timeLeft}s` : '∞'}</p>
-          </div>
+          {!isMatched && (
+            <div className="text-right">
+              <p className="text-xs text-black uppercase tracking-wide">Remaining Time:</p>
+              <div className="flex items-center gap-2">
+                <div 
+                  className={`w-5 h-5 rounded-full transition-all duration-1000 ${
+                    timeLeft > 20 ? 'bg-green-500' : 
+                    timeLeft > 10 ? 'bg-orange-500' : 
+                    'bg-red-500'
+                  } ${
+                    timeLeft <= reminderThreshold && !showChatEndModal ? 'animate-pulse-fast' : ''
+                  }`}
+                />
+                <p className="text-2xl lg:text-3xl text-black font-normal">
+                  {`00:${timeLeft.toString().padStart(2, '0')}`}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Progress Bar - hide when matched */}
         {!isMatched && (
           <div className="h-2 bg-[#F4F2E5] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#F3EF81] to-[#81E8F3] transition-all duration-1000"
-              style={{ width: `${(timeLeft / 30) * 100}%` }}
-            />
+                className="h-full bg-gradient-to-r from-[#F3EF81] to-[#81E8F3] transition-width duration-1000 ease-linear"
+                style={{ 
+                  width: `${(timeLeft / 30) * 100}%`,
+                  transition: 'width 1s linear'
+                }}
+              />
           </div>
         )}
       </div>
 
       {/* Helper Text */}
       <div className="px-4 lg:px-6 py-4 text-center">
-        <p className="text-sm text-[#8E8E8E]">
-          You&apos;re both here now. Take your time.
+        <p className={`text-sm text-[#8E8E8E] ${
+          timeLeft <= reminderThreshold && timeLeft > 0 
+            ? 'animate-zoom-pulse text-base' 
+            : ''
+        }`}>
+          {timeLeft <= reminderThreshold && timeLeft > 0 
+            ? `This conversation is ending in ${timeLeft} seconds. If it matters, say it.` 
+            : "You're both here now. Take your time."
+          }
         </p>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-12 space-y-4 lg:space-y-6">
         {messages.map((message, index) => {
           // Check if there's a reveal moment after this message
           const revealAfter = revealedAnswers.find(r => {
@@ -291,21 +362,32 @@ export function ChatScreen({
 
       {/* Input */}
       <div className="px-4 lg:px-6 py-4 bg-white border-t border-[#E6E6E6]">
-        <div className="flex items-center gap-3 bg-white rounded-full border border-[#C7C7C7] px-6 py-3 max-w-6xl mx-auto">
+        <div className="flex items-center gap-3 bg-white rounded-full border border-[#C7C7C7] px-8 py-4 max-w-6xl mx-auto group">
+          {/* User Soul Color Circle - inside input bar on left */}
+          <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-full">
+            <div
+              className="w-full h-full rounded-full"
+              style={{
+                background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`,
+              }}
+            />
+            <div className="absolute inset-0 w-8 h-8 lg:w-12 lg:h-12 rounded-full bg-white/20 backdrop-blur-md" />
+          </div>
+          
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Say hi to your potential soulmate"
-            className="flex-1 bg-transparent text-[#3D3D3D] placeholder-[#C7C7C7] focus:outline-none text-sm lg:text-base"
+            className="flex-1 bg-transparent text-[#3D3D3D] placeholder-[#C7C7C7] focus:outline-none text-sm lg:text-base ml-3"
           />
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className="w-12 h-12 rounded-full bg-[#E6E6E6] flex items-center justify-center transition-colors hover:bg-[#C7C7C7] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-12 h-12 rounded-full bg-[#E6E6E6] flex items-center justify-center transition-all hover:bg-[#3D3D3D] hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 group-hover:bg-[#3D3D3D]"
           >
-            <Send className="w-5 h-5 text-[#C7C7C7]" />
+            <Send className="w-5 h-5 text-[#C7C7C7] transition-colors group-hover:text-white" />
           </button>
         </div>
       </div>
@@ -313,94 +395,100 @@ export function ChatScreen({
       {/* Chat End Modal Overlay */}
       {showChatEndModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          {chatEndState === 'initial' && (
-            <div className="bg-white/60 rounded-[40px] p-12 shadow-lg w-[450px] h-[440px] flex flex-col items-center gap-9">
-              <div className="flex flex-col items-center gap-7">
-                <div className="flex flex-col items-center gap-6">
-                  <h2 className="text-[24px] font-medium text-center text-black">
-                    This conversation is coming to a close.
-                  </h2>
-                  <p className="text-base italic text-center text-[#5A5A5A]">
-                    You can keep going if it feels right.
-                  </p>
-                </div>
-                
-                <div className="flex flex-col gap-3 w-full">
-                  <button
-                    onClick={handleContinueChat}
-                    className="w-full h-20 bg-[#F3EF81] rounded-[17px] flex items-center justify-center text-[20.8px] font-medium text-black hover:opacity-90 transition-opacity"
-                  >
-                    Continue chat
-                  </button>
-                  <button
-                    onClick={handleEndChat}
-                    className="w-full h-20 bg-[#E6E6E6] rounded-[17px] flex items-center justify-center text-[20.8px] font-medium text-black hover:opacity-90 transition-opacity"
-                  >
-                    End here
-                  </button>
+          <div className="transition-all duration-300 ease-in-out">
+            {chatEndState === 'initial' && (
+              <div className="bg-white/90 rounded-[40px] p-12 shadow-2xl w-[450px] h-[440px] flex flex-col items-center gap-9 transition-all duration-300 ease-in-out">
+                <div className="flex flex-col items-center gap-9">
+                  <div className="flex flex-col items-center gap-6">
+                    <h2 className="text-[24px] font-medium text-center text-black">
+                      This conversation is coming to a close.
+                    </h2>
+                    <p className="text-base italic text-center text-[#5A5A5A]">
+                      You can keep going if it feels right.
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col gap-3 w-full">
+                    <button
+                      onClick={handleContinueChat}
+                      className="w-full h-20 bg-[#F3EF81] rounded-[17px] flex items-center justify-center text-[20.8px] font-medium text-black hover:bg-[#E5D870] hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
+                    >
+                      Continue chat
+                    </button>
+                    <button
+                      onClick={handleEndChat}
+                      className="w-full h-20 bg-[#E6E6E6] rounded-[17px] flex items-center justify-center text-[20.8px] font-medium text-black hover:bg-[#D8D8D8] hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
+                    >
+                      End here
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {chatEndState === 'loading' && (
-            <div className="bg-white/60 rounded-[40px] p-12 shadow-lg w-[450px] h-[440px] flex flex-col items-center justify-center gap-9">
-              <div className="flex flex-col items-center gap-[60px]">
-                {/* Loading Animation */}
-                <div className="relative w-[150px] h-[150px]">
-                  <div className="absolute top-0 left-[58.64px] w-[32.73px] h-[31.36px] bg-[#F3EF81] rounded-full animate-pulse" />
-                  <div className="absolute top-[58.64px] right-0 w-[32.73px] h-[31.36px] bg-[#D9D9D9] rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  <div className="absolute bottom-0 left-[58.64px] w-[32.73px] h-[31.36px] bg-[#D9D9D9] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-                  <div className="absolute top-[58.64px] left-0 w-[32.73px] h-[31.36px] bg-[#C7C7C7] rounded-full animate-pulse" style={{ animationDelay: '1.5s' }} />
-                </div>
-                
-                <div className="flex flex-col items-center gap-6">
-                  <h2 className="text-[27.7px] font-medium text-center text-black">
-                    Waiting for them
-                  </h2>
-                  <p className="text-base italic text-center text-[#5A5A5A]">
-                    You&apos;ve chosen to keep the conversation going. We&apos;ll let you know once they decide too.
-                  </p>
+            {chatEndState === 'loading' && (
+              <div className="bg-white/90 rounded-[40px] p-12 shadow-2xl w-[450px] h-[440px] flex flex-col items-center justify-center gap-9 transition-all duration-300 ease-in-out">
+                <div className="flex flex-col items-center gap-[60px]">
+                  {/* Loading Animation */}
+                  <div className="relative w-[150px] h-[150px] animate-rotate">
+                    <div className="absolute top-0 left-[58.64px] w-[32.73px] h-[31.36px] bg-[#F3EF81] rounded-full" />
+                    <div className="absolute top-[20px] right-[20px] w-[28px] h-[28px] bg-[#E8E8E8] rounded-full" />
+                    <div className="absolute top-[58.64px] right-0 w-[32.73px] h-[31.36px] bg-[#D9D9D9] rounded-full" />
+                    <div className="absolute bottom-[20px] right-[20px] w-[24px] h-[24px] bg-[#C7C7C7] rounded-full" />
+                    <div className="absolute bottom-0 left-[58.64px] w-[32.73px] h-[31.36px] bg-[#B8B8B8] rounded-full" />
+                    <div className="absolute bottom-[20px] left-[20px] w-[26px] h-[26px] bg-[#A8A8A8] rounded-full" />
+                    <div className="absolute top-[58.64px] left-0 w-[32.73px] h-[31.36px] bg-[#989898] rounded-full" />
+                    <div className="absolute top-[20px] left-[20px] w-[30px] h-[30px] bg-[#888888] rounded-full" />
+                  </div>
+                  
+                  <div className="flex flex-col items-center gap-6">
+                    <h2 className="text-[27.7px] font-medium text-center text-black">
+                      Waiting for them
+                    </h2>
+                    <p className="text-base italic text-center text-[#5A5A5A]">
+                      You&apos;ve chosen to keep the conversation going. We&apos;ll let you know once they decide too.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {chatEndState === 'matched' && (
-            <div className="bg-white/60 rounded-[40px] p-12 shadow-lg w-[450px] h-[440px] flex flex-col items-center justify-center gap-10">
-              <div className="flex flex-col items-center gap-10">
-                <div className="flex flex-col items-center gap-6">
-                  <h2 className="text-[24px] font-bold text-center text-black">
-                    You matched!
-                  </h2>
-                  <p className="text-base italic text-center text-black">
-                    Looks like you both want to keep going.
+            {chatEndState === 'matched' && (
+              <div className="bg-white/90 rounded-[40px] p-12 shadow-2xl w-[450px] h-[440px] flex flex-col items-center justify-center gap-10 transition-all duration-300 ease-in-out">
+                <div className="flex flex-col items-center gap-10">
+                  <div className="flex flex-col items-center gap-6">
+                    <h2 className="text-[24px] font-bold text-center text-black">
+                      You matched!
+                    </h2>
+                    <p className="text-base italic text-center text-black">
+                      Looks like you both want to keep going.
+                    </p>
+                  </div>
+                  
+                  {/* Soul Color Circles - spaced further apart */}
+                  <div className="relative w-[350px] h-[192px]">
+                    <div className="absolute inset-0 bg-white/22 backdrop-blur-sm rounded-lg" />
+                    <div 
+                      className="absolute left-[50px] top-[5.33px] w-[172.25px] h-[172.25px] rounded-full"
+                      style={{
+                        background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`
+                      }}
+                    />
+                    <div 
+                      className="absolute right-[50px] top-[5.44px] w-[169.21px] h-[169.21px] rounded-full"
+                      style={{
+                        background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`
+                      }}
+                    />
+                  </div>
+                  
+                  <p className="text-sm italic text-center text-[#5A5A5A]">
+                    Taking you back to the chat in a few seconds.
                   </p>
                 </div>
-                
-                {/* Soul Color Circles */}
-                <div className="relative w-[293px] h-[192px]">
-                  <div className="absolute inset-0 bg-white/22 backdrop-blur-sm rounded-lg" />
-                  <div 
-                    className="absolute left-[55.63px] top-[5.33px] w-[172.25px] h-[172.25px] rounded-full"
-                    style={{
-                      background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`
-                    }}
-                  />
-                  <div 
-                    className="absolute right-[38.5px] top-[5.44px] w-[169.21px] h-[169.21px] rounded-full"
-                    style={{
-                      background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`
-                    }}
-                  />
-                </div>
-                
-                <p className="text-sm italic text-center text-[#5A5A5A]">
-                  Taking you back to the chat in 3 seconds.
-                </p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
