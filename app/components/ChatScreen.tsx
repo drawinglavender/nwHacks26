@@ -159,11 +159,16 @@ export function ChatScreen({
     
     // Reveal logic for both timed and matched conversations
     if (isMatched) {
-      // After match, reveal every 15 messages
-      const revealInterval = 15;
+      // After match, reveal every n messages
+      const revealInterval = 6;
       const messagesSinceLastReveal = messageCount - (revealedAnswers[revealedAnswers.length - 1]?.messageCount || 0);
       
-      if (messagesSinceLastReveal >= revealInterval && revealedAnswers.length < (userAnswers.length + otherUserAnswers.length)) {
+      // Continue until all responses from both users have been shared
+      const totalUserAnswers = userAnswers.length;
+      const totalOtherAnswers = otherUserAnswers.length;
+      const totalAnswers = totalUserAnswers + totalOtherAnswers;
+      
+      if (messagesSinceLastReveal >= revealInterval && revealedAnswers.length < totalAnswers) {
         const nextSender = revealedAnswers.length % 2 === 0 ? 'user' : 'other';
         const answerPool = nextSender === 'user' ? userAnswers : otherUserAnswers;
         const alreadyRevealed = revealedAnswers.filter(r => r.sender === nextSender).length;
@@ -181,8 +186,8 @@ export function ChatScreen({
         }
       }
     } else {
-      // During timed conversation, reveal at specific message counts
-      const revealThresholds = [10, 20, 30, 40];
+      // During timed conversation, reveal at specific message counts (more frequent)
+      const revealThresholds = [5, 5, 5, 5, 5, 5];
       
       revealThresholds.forEach((threshold, index) => {
         if (messageCount === threshold) {
@@ -191,7 +196,12 @@ export function ChatScreen({
           const answerPool = isOtherUser ? otherUserAnswers : userAnswers;
           const alreadyRevealed = revealedAnswers.filter(r => r.sender === (isOtherUser ? 'other' : 'user')).length;
           
-          if (alreadyRevealed < answerPool.length) {
+          // Continue until all responses from both users have been shared
+          const totalUserAnswers = userAnswers.length;
+          const totalOtherAnswers = otherUserAnswers.length;
+          const totalAnswers = totalUserAnswers + totalOtherAnswers;
+          
+          if (alreadyRevealed < answerPool.length && revealedAnswers.length < totalAnswers) {
             const newReveal: RevealMoment = {
               messageCount: threshold,
               answer: answerPool[alreadyRevealed],
