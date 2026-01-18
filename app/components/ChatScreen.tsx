@@ -491,7 +491,7 @@ export function ChatScreen({
                 <div
                   className={`max-w-[70%] lg:max-w-[75%] px-4 lg:px-6 py-3 lg:py-4 rounded-2xl lg:rounded-3xl ${
                     message.sender === 'user'
-                      ? 'bg-[#3D3D3D] text-white rounded-br-lg'
+                      ? 'bg-[#F3EF81] text-[#3D3D3D] rounded-br-lg'
                       : 'bg-white border border-[#E8E8E8] text-[#3D3D3D] rounded-bl-lg'
                   }`}
                 >
@@ -575,9 +575,9 @@ export function ChatScreen({
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className="w-12 h-12 rounded-full bg-[#E6E6E6] flex items-center justify-center transition-all hover:bg-[#3D3D3D] hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 group-hover:bg-[#3D3D3D]"
+            className="w-12 h-12 rounded-full bg-[#F3EF81] flex items-center justify-center transition-all hover:bg-[#E5D870] hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 group-hover:bg-[#F3EF81]"
           >
-            <Send className="w-5 h-5 text-[#C7C7C7] transition-colors group-hover:text-white" />
+            <Send className="w-5 h-5 text-[#3D3D3D] transition-colors" />
           </button>
         </div>
       </div>

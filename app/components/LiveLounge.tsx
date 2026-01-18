@@ -148,7 +148,7 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
       <div className="absolute bottom-6 lg:bottom-8 right-6 lg:right-8">
         <button
           onClick={() => onNavigate('create-prompt')}
-          className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-[#3D3D3D] text-white flex items-center justify-center shadow-xl hover:bg-[#2D2D2D] transition-all hover:scale-105"
+          className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-[#F3EF81] text-white flex items-center justify-center shadow-xl hover:bg-[#E5D870] transition-all hover:scale-105"
         >
           <Plus className="w-6 h-6 lg:w-9 lg:h-9" />
         </button>
