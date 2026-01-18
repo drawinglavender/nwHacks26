@@ -2,6 +2,90 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Screen, OnboardingAnswer } from '../page';
 import { ArrowLeft, Send } from 'lucide-react';
 
+// Soul color mappings with personality descriptions
+const soulColors = {
+  'Obsidian Violet': {
+    from: '#4A148C',
+    to: '#7B1FA2',
+    description: 'Quietly visionary. You think in long arcs and speak only when it matters.'
+  },
+  'Fog Blue': {
+    from: '#607D8B',
+    to: '#90A4AE',
+    description: 'Curious and inward. You explore ideas softly, letting meaning unfold over time.'
+  },
+  'Iron Crimson': {
+    from: '#B71C1C',
+    to: '#D32F2F',
+    description: 'Clear and commanding. You bring direction and momentum into every conversation.'
+  },
+  'Electric Gold': {
+    from: '#FFA000',
+    to: '#FFC107',
+    description: 'Playful and sharp. You ignite ideas and keep conversations alive with possibility.'
+  },
+  'Deep Indigo': {
+    from: '#1A237E',
+    to: '#3F51B5',
+    description: 'Reflective and intuitive. You sense what is unspoken and respond with care.'
+  },
+  'Rose Quartz': {
+    from: '#E91E63',
+    to: '#F48FB1',
+    description: 'Gentle and sincere. You lead with feeling and value emotional truth.'
+  },
+  'Sunlit Amber': {
+    from: '#FF6F00',
+    to: '#FFB74D',
+    description: 'Warm and encouraging. You help others feel seen and understood.'
+  },
+  'Sunset Coral': {
+    from: '#FF5722',
+    to: '#FF8A65',
+    description: 'Open and expressive. You bring warmth, curiosity, and emotional color into the room.'
+  },
+  'Slate Gray': {
+    from: '#455A64',
+    to: '#607D8B',
+    description: 'Grounded and steady. You offer clarity through consistency and calm.'
+  },
+  'Soft Sage': {
+    from: '#689F38',
+    to: '#8BC34A',
+    description: 'Protective and thoughtful. You create safety through quiet presence.'
+  },
+  'Stone Bronze': {
+    from: '#5D4037',
+    to: '#795548',
+    description: 'Structured and reliable. You anchor conversations with clarity and purpose.'
+  },
+  'Blush Gold': {
+    from: '#F57C00',
+    to: '#FF9800',
+    description: 'Attentive and social. You tune into others and build connection with ease.'
+  },
+  'Steel Blue': {
+    from: '#1565C0',
+    to: '#2196F3',
+    description: 'Calm and precise. You observe carefully and act with intention.'
+  },
+  'Lavender Mist': {
+    from: '#7B1FA2',
+    to: '#BA68C8',
+    description: 'Sensitive and present. You notice beauty and emotion in subtle moments.'
+  },
+  'Ember Red': {
+    from: '#D32F2F',
+    to: '#FF5252',
+    description: 'Bold and immediate. You bring energy and aliveness into the now.'
+  },
+  'Golden Peach': {
+    from: '#FF8F00',
+    to: '#FFB300',
+    description: 'Warm and radiant. You invite joy, openness, and shared experience.'
+  }
+};
+
 // Custom zoom animation styles
 const zoomAnimation = `
   @keyframes zoom-pulse {
@@ -43,11 +127,25 @@ const zoomAnimation = `
   .animate-pulse-fast {
     animation: pulse-fast 0.8s ease-in-out infinite;
   }
+
+  @keyframes soul-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+  }
+  .animate-soul-pulse {
+    animation: soul-pulse 3s ease-in-out infinite;
+  }
 `;
 
 interface ChatScreenProps {
-  userSoulColor: { from: string; to: string };
-  otherSoulColor: { from: string; to: string };
+  userSoulColor: { name: string; from: string; to: string };
+  otherSoulColor: { name: string; from: string; to: string };
   userAnswers: OnboardingAnswer[];
   otherUserAnswers: OnboardingAnswer[];
   onNavigate: (screen: Screen) => void;
@@ -159,11 +257,16 @@ export function ChatScreen({
     
     // Reveal logic for both timed and matched conversations
     if (isMatched) {
-      // After match, reveal every 15 messages
-      const revealInterval = 15;
+      // After match, reveal every n messages
+      const revealInterval = 6;
       const messagesSinceLastReveal = messageCount - (revealedAnswers[revealedAnswers.length - 1]?.messageCount || 0);
       
-      if (messagesSinceLastReveal >= revealInterval && revealedAnswers.length < (userAnswers.length + otherUserAnswers.length)) {
+      // Continue until all responses from both users have been shared
+      const totalUserAnswers = userAnswers.length;
+      const totalOtherAnswers = otherUserAnswers.length;
+      const totalAnswers = totalUserAnswers + totalOtherAnswers;
+      
+      if (messagesSinceLastReveal >= revealInterval && revealedAnswers.length < totalAnswers) {
         const nextSender = revealedAnswers.length % 2 === 0 ? 'user' : 'other';
         const answerPool = nextSender === 'user' ? userAnswers : otherUserAnswers;
         const alreadyRevealed = revealedAnswers.filter(r => r.sender === nextSender).length;
@@ -181,8 +284,8 @@ export function ChatScreen({
         }
       }
     } else {
-      // During timed conversation, reveal at specific message counts
-      const revealThresholds = [10, 20, 30, 40];
+      // During timed conversation, reveal at specific message counts (more frequent)
+      const revealThresholds = [5, 5, 5, 5, 5, 5];
       
       revealThresholds.forEach((threshold, index) => {
         if (messageCount === threshold) {
@@ -191,7 +294,12 @@ export function ChatScreen({
           const answerPool = isOtherUser ? otherUserAnswers : userAnswers;
           const alreadyRevealed = revealedAnswers.filter(r => r.sender === (isOtherUser ? 'other' : 'user')).length;
           
-          if (alreadyRevealed < answerPool.length) {
+          // Continue until all responses from both users have been shared
+          const totalUserAnswers = userAnswers.length;
+          const totalOtherAnswers = otherUserAnswers.length;
+          const totalAnswers = totalUserAnswers + totalOtherAnswers;
+          
+          if (alreadyRevealed < answerPool.length && revealedAnswers.length < totalAnswers) {
             const newReveal: RevealMoment = {
               messageCount: threshold,
               answer: answerPool[alreadyRevealed],
@@ -259,21 +367,51 @@ export function ChatScreen({
           </button>
 
           <div className="flex items-center gap-2 lg:gap-3">
-            <div
-              className="w-8 h-8 lg:w-12 lg:h-12 rounded-full relative"
-              style={{
-                background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`,
-              }}
-            >
-              <div className="absolute inset-0 w-8 h-8 lg:w-12 lg:h-12 rounded-full bg-white/20 blur-md" />
+            <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-full animate-soul-pulse">
+              <div 
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: `radial-gradient(circle at 35% 35%, ${otherSoulColor.to} 0%, ${otherSoulColor.from} 70%, transparent 90%)`,
+                  filter: 'blur(1.5px)'
+                }}
+              />
+              <div 
+                className="absolute inset-1 rounded-full"
+                style={{
+                  background: `radial-gradient(circle at 65% 65%, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 60%, transparent 85%)`,
+                  filter: 'blur(1px)'
+                }}
+              />
+              <div 
+                className="absolute inset-2 rounded-full"
+                style={{
+                  background: `radial-gradient(circle at 50% 50%, ${otherSoulColor.to} 0%, ${otherSoulColor.from} 100%)`,
+                  filter: 'blur(0.5px)'
+                }}
+              />
             </div>
-            <div
-              className="w-8 h-8 lg:w-12 lg:h-12 rounded-full relative"
-              style={{
-                background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`,
-              }}
-            >
-              <div className="absolute inset-0 w-8 h-8 lg:w-12 lg:h-12 rounded-full bg-white/20 blur-md" />
+            <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-full animate-soul-pulse" style={{ animationDelay: '1s' }}>
+              <div 
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: `radial-gradient(circle at 35% 35%, ${userSoulColor.to} 0%, ${userSoulColor.from} 70%, transparent 90%)`,
+                  filter: 'blur(1.5px)'
+                }}
+              />
+              <div 
+                className="absolute inset-1 rounded-full"
+                style={{
+                  background: `radial-gradient(circle at 65% 65%, ${userSoulColor.from} 0%, ${userSoulColor.to} 60%, transparent 85%)`,
+                  filter: 'blur(1px)'
+                }}
+              />
+              <div 
+                className="absolute inset-2 rounded-full"
+                style={{
+                  background: `radial-gradient(circle at 50% 50%, ${userSoulColor.to} 0%, ${userSoulColor.from} 100%)`,
+                  filter: 'blur(0.5px)'
+                }}
+              />
             </div>
           </div>
 
@@ -353,7 +491,7 @@ export function ChatScreen({
                 <div
                   className={`max-w-[70%] lg:max-w-[75%] px-4 lg:px-6 py-3 lg:py-4 rounded-2xl lg:rounded-3xl ${
                     message.sender === 'user'
-                      ? 'bg-[#3D3D3D] text-white rounded-br-lg'
+                      ? 'bg-[#F3EF81] text-[#3D3D3D] rounded-br-lg'
                       : 'bg-white border border-[#E8E8E8] text-[#3D3D3D] rounded-bl-lg'
                   }`}
                 >
@@ -402,14 +540,28 @@ export function ChatScreen({
       <div className="px-4 lg:px-6 py-4 bg-white border-t border-[#E6E6E6]">
         <div className="flex items-center gap-3 bg-white rounded-full border border-[#C7C7C7] px-8 py-4 max-w-6xl mx-auto group">
           {/* User Soul Color Circle - inside input bar on left */}
-          <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-full">
-            <div
-              className="w-full h-full rounded-full"
+          <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-full animate-soul-pulse">
+            <div 
+              className="absolute inset-0 rounded-full"
               style={{
-                background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`,
+                background: `radial-gradient(circle at 35% 35%, ${userSoulColor.to} 0%, ${userSoulColor.from} 70%, transparent 90%)`,
+                filter: 'blur(1.5px)'
               }}
             />
-            <div className="absolute inset-0 w-8 h-8 lg:w-12 lg:h-12 rounded-full bg-white/20 backdrop-blur-md" />
+            <div 
+              className="absolute inset-1 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 65% 65%, ${userSoulColor.from} 0%, ${userSoulColor.to} 60%, transparent 85%)`,
+                filter: 'blur(1px)'
+              }}
+            />
+            <div 
+              className="absolute inset-2 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, ${userSoulColor.to} 0%, ${userSoulColor.from} 100%)`,
+                filter: 'blur(0.5px)'
+              }}
+            />
           </div>
           
           <input
@@ -423,9 +575,9 @@ export function ChatScreen({
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className="w-12 h-12 rounded-full bg-[#E6E6E6] flex items-center justify-center transition-all hover:bg-[#3D3D3D] hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 group-hover:bg-[#3D3D3D]"
+            className="w-12 h-12 rounded-full bg-[#F3EF81] flex items-center justify-center transition-all hover:bg-[#E5D870] hover:scale-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 group-hover:bg-[#F3EF81]"
           >
-            <Send className="w-5 h-5 text-[#C7C7C7] transition-colors group-hover:text-white" />
+            <Send className="w-5 h-5 text-[#3D3D3D] transition-colors" />
           </button>
         </div>
       </div>
@@ -471,7 +623,6 @@ export function ChatScreen({
                   <div className="relative w-[150px] h-[150px] animate-rotate">
                     <div className="absolute top-0 left-[58.64px] w-[32.73px] h-[31.36px] bg-[#F3EF81] rounded-full" />
                     <div className="absolute top-[20px] right-[20px] w-[28px] h-[28px] bg-[#E8E8E8] rounded-full" />
-                    <div className="absolute top-[58.64px] right-0 w-[32.73px] h-[31.36px] bg-[#D9D9D9] rounded-full" />
                     <div className="absolute bottom-[20px] right-[20px] w-[24px] h-[24px] bg-[#C7C7C7] rounded-full" />
                     <div className="absolute bottom-0 left-[58.64px] w-[32.73px] h-[31.36px] bg-[#B8B8B8] rounded-full" />
                     <div className="absolute bottom-[20px] left-[20px] w-[26px] h-[26px] bg-[#A8A8A8] rounded-full" />
@@ -484,7 +635,7 @@ export function ChatScreen({
                       Waiting for them
                     </h2>
                     <p className="text-base italic text-center text-[#5A5A5A]">
-                      You&apos;ve chosen to keep the conversation going. We&apos;ll let you know once they decide too.
+                      You&apos;ve chosen to keep the conversation going. We&apos;ll take you back if you&apos;re a match.
                     </p>
                   </div>
                 </div>
@@ -506,18 +657,52 @@ export function ChatScreen({
                   {/* Soul Color Circles - spaced further apart */}
                   <div className="relative w-[350px] h-[192px]">
                     <div className="absolute inset-0 bg-white/22 backdrop-blur-sm rounded-lg" />
-                    <div 
-                      className="absolute left-[50px] top-[5.33px] w-[172.25px] h-[172.25px] rounded-full"
-                      style={{
-                        background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`
-                      }}
-                    />
-                    <div 
-                      className="absolute right-[50px] top-[5.44px] w-[169.21px] h-[169.21px] rounded-full"
-                      style={{
-                        background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`
-                      }}
-                    />
+                    <div className="absolute left-[50px] top-[5.33px] w-[172.25px] h-[172.25px] rounded-full animate-soul-pulse">
+                      <div 
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 35% 35%, ${userSoulColor.to} 0%, ${userSoulColor.from} 70%, transparent 90%)`,
+                          filter: 'blur(1.5px)'
+                        }}
+                      />
+                      <div 
+                        className="absolute inset-4 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 65% 65%, ${userSoulColor.from} 0%, ${userSoulColor.to} 60%, transparent 85%)`,
+                          filter: 'blur(1px)'
+                        }}
+                      />
+                      <div 
+                        className="absolute inset-8 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 50% 50%, ${userSoulColor.to} 0%, ${userSoulColor.from} 100%)`,
+                          filter: 'blur(0.5px)'
+                        }}
+                      />
+                    </div>
+                    <div className="absolute right-[50px] top-[5.44px] w-[169.21px] h-[169.21px] rounded-full animate-soul-pulse" style={{ animationDelay: '1s' }}>
+                      <div 
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 35% 35%, ${otherSoulColor.to} 0%, ${otherSoulColor.from} 70%, transparent 90%)`,
+                          filter: 'blur(1.5px)'
+                        }}
+                      />
+                      <div 
+                        className="absolute inset-4 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 65% 65%, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 60%, transparent 85%)`,
+                          filter: 'blur(1px)'
+                        }}
+                      />
+                      <div 
+                        className="absolute inset-8 rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 50% 50%, ${otherSoulColor.to} 0%, ${otherSoulColor.from} 100%)`,
+                          filter: 'blur(0.5px)'
+                        }}
+                      />
+                    </div>
                   </div>
                   
                   <p className="text-sm italic text-center text-[#5A5A5A]">
@@ -540,16 +725,41 @@ export function ChatScreen({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-8 h-8 rounded-full"
-                style={{
-                  background: `linear-gradient(135deg, ${
-                    activePopupReveal.sender === 'user' 
-                      ? `${userSoulColor.from} 0%, ${userSoulColor.to}` 
-                      : `${otherSoulColor.from} 0%, ${otherSoulColor.to}`
-                  } 100%)`,
-                }}
-              />
+              <div className="relative w-8 h-8 rounded-full animate-soul-pulse">
+                <div 
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: `radial-gradient(circle at 35% 35%, ${
+                      activePopupReveal.sender === 'user' 
+                        ? `${userSoulColor.to} 0%, ${userSoulColor.from} 70%, transparent 90%`
+                        : `${otherSoulColor.to} 0%, ${otherSoulColor.from} 70%, transparent 90%`
+                    })`,
+                    filter: 'blur(1.5px)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-1 rounded-full"
+                  style={{
+                    background: `radial-gradient(circle at 65% 65%, ${
+                      activePopupReveal.sender === 'user' 
+                        ? `${userSoulColor.from} 0%, ${userSoulColor.to} 60%, transparent 85%`
+                        : `${otherSoulColor.from} 0%, ${otherSoulColor.to} 60%, transparent 85%`
+                    })`,
+                    filter: 'blur(1px)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-2 rounded-full"
+                  style={{
+                    background: `radial-gradient(circle at 50% 50%, ${
+                      activePopupReveal.sender === 'user' 
+                        ? `${userSoulColor.to} 0%, ${userSoulColor.from} 100%`
+                        : `${otherSoulColor.to} 0%, ${otherSoulColor.from} 100%`
+                    })`,
+                    filter: 'blur(0.5px)'
+                  }}
+                />
+              </div>
               <p className="text-xs text-[#9B9B9B]">
                 {activePopupReveal.sender === 'user' ? 'You' : 'They'} shared more
               </p>

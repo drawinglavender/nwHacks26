@@ -3,15 +3,17 @@ import { Screen } from '../page';
 import { ChevronRight } from 'lucide-react';
 
 interface CreateStartingPromptProps {
-  userSoulColor: { from: string; to: string };
+  userSoulColor: { name: string; from: string; to: string };
   onNavigate: (screen: Screen) => void;
+  onSubmit: (prompt: string) => void;
 }
 
-export function CreateStartingPrompt({ userSoulColor, onNavigate }: CreateStartingPromptProps) {
+export function CreateStartingPrompt({ userSoulColor, onNavigate, onSubmit }: CreateStartingPromptProps) {
   const [prompt, setPrompt] = useState('');
 
   const handlePost = () => {
     if (prompt.trim()) {
+      onSubmit(prompt);
       onNavigate('lounge');
     }
   };
@@ -30,12 +32,29 @@ export function CreateStartingPrompt({ userSoulColor, onNavigate }: CreateStarti
       <div className="flex-1">
         {/* Soul color preview */}
         <div className="flex items-center gap-3 mb-6">
-          <div
-            className="w-10 h-10 rounded-full"
-            style={{
-              background: `linear-gradient(135deg, ${userSoulColor.from} 0%, ${userSoulColor.to} 100%)`,
-            }}
-          />
+          <div className="relative w-10 h-10 rounded-full">
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 35% 35%, ${userSoulColor.to} 0%, ${userSoulColor.from} 70%, transparent 90%)`,
+                filter: 'blur(1.5px)'
+              }}
+            />
+            <div 
+              className="absolute inset-1 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 65% 65%, ${userSoulColor.from} 0%, ${userSoulColor.to} 60%, transparent 85%)`,
+                filter: 'blur(1px)'
+              }}
+            />
+            <div 
+              className="absolute inset-2 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, ${userSoulColor.to} 0%, ${userSoulColor.from} 100%)`,
+                filter: 'blur(0.5px)'
+              }}
+            />
+          </div>
           <p className="text-sm text-[#6B6B6B]">This is how others will see you</p>
         </div>
 
