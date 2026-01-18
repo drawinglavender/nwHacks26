@@ -1,4 +1,4 @@
-# nwHacks26 - Soul Connection Platform
+# SoulTalk - Soul Connection Platform
 
 A modern connection platform built with Next.js that helps users find meaningful connections through shared interests and soul color compatibility.
 
