@@ -3,8 +3,9 @@ import { Screen } from '../page';
 import { Heart } from 'lucide-react';
 
 interface MatchConfirmationProps {
+  userSoulColor: { name: string; from: string; to: string };
+  otherSoulColor: { name: string; from: string; to: string };
   onNavigate: (screen: Screen) => void;
-  otherSoulColor: { from: string; to: string };
   onContinueChat: () => void;
 }
 
@@ -14,12 +15,29 @@ export function MatchConfirmation({ onNavigate, otherSoulColor, onContinueChat }
       <div className="flex-1 flex flex-col items-center justify-center text-center">
         {/* Soul color visualization */}
         <div className="relative mb-12">
-          <div
-            className="w-32 h-32 rounded-full mx-auto shadow-xl"
-            style={{
-              background: `linear-gradient(135deg, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 100%)`,
-            }}
-          />
+          <div className="relative w-32 h-32 rounded-full mx-auto shadow-xl">
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 35% 35%, ${otherSoulColor.to} 0%, ${otherSoulColor.from} 70%, transparent 90%)`,
+                filter: 'blur(1.5px)'
+              }}
+            />
+            <div 
+              className="absolute inset-2 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 65% 65%, ${otherSoulColor.from} 0%, ${otherSoulColor.to} 60%, transparent 85%)`,
+                filter: 'blur(1px)'
+              }}
+            />
+            <div 
+              className="absolute inset-4 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, ${otherSoulColor.to} 0%, ${otherSoulColor.from} 100%)`,
+                filter: 'blur(0.5px)'
+              }}
+            />
+          </div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
             <Heart className="w-8 h-8 text-[#3D3D3D] fill-[#3D3D3D]" />
           </div>

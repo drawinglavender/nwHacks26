@@ -3,7 +3,7 @@ import { Screen, Thought } from '../page';
 import { Plus, MessageCircle } from 'lucide-react';
 
 interface LiveLoungeProps {
-  userSoulColor: { from: string; to: string };
+  userSoulColor: { name: string; from: string; to: string };
   onNavigate: (screen: Screen) => void;
   onSelectThought: (thought: any) => void;
 }
@@ -12,28 +12,28 @@ const mockThoughts = [
   {
     id: 1,
     text: "Does anyone else feel like they're more themselves online than in person?",
-    soulColor: { from: '#B8D4C4', to: '#9FBFAA' },
+    soulColor: { name: 'Soft Sage', from: '#689F38', to: '#8BC34A' },
     tag: 'Deep',
     timeLeft: 8,
   },
   {
     id: 2,
     text: "What's something small that made you smile today?",
-    soulColor: { from: '#E8D4B8', to: '#D4BF9F' },
+    soulColor: { name: 'Sunlit Amber', from: '#FF6F00', to: '#FFB74D' },
     tag: 'Light',
     timeLeft: 5,
   },
   {
     id: 3,
     text: "I've been thinking about how we define success. Is it something we choose or something that's chosen for us?",
-    soulColor: { from: '#C4B8E8', to: '#A89FD4' },
+    soulColor: { name: 'Lavender Mist', from: '#7B1FA2', to: '#BA68C8' },
     tag: 'Curious',
     timeLeft: 12,
   },
   {
     id: 4,
     text: "Looking for someone to talk about the quiet moments that matter.",
-    soulColor: { from: '#B8C4E8', to: '#9FA8D4' },
+    soulColor: { name: 'Steel Blue', from: '#1565C0', to: '#2196F3' },
     tag: 'Deep',
     timeLeft: 15,
   },
@@ -102,12 +102,29 @@ export function LiveLounge({ userSoulColor, onNavigate, onSelectThought }: LiveL
             className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-[#E8E8E8] hover:border-[#C8C8C8] transition-all cursor-pointer max-w-6xl mx-auto"
           >
             <div className="flex items-start gap-4 lg:gap-6 mb-4 lg:mb-6">
-              <div
-                className="w-12 h-12 lg:w-16 lg:h-16 rounded-full flex-shrink-0"
-                style={{
-                  background: `linear-gradient(135deg, ${thought.soulColor.from} 0%, ${thought.soulColor.to} 100%)`,
-                }}
-              />
+              <div className="relative w-12 h-12 lg:w-16 lg:h-16 rounded-full flex-shrink-0">
+                <div 
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: `radial-gradient(circle at 35% 35%, ${thought.soulColor.to} 0%, ${thought.soulColor.from} 70%, transparent 90%)`,
+                    filter: 'blur(1.5px)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-1 rounded-full"
+                  style={{
+                    background: `radial-gradient(circle at 65% 65%, ${thought.soulColor.from} 0%, ${thought.soulColor.to} 60%, transparent 85%)`,
+                    filter: 'blur(1px)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-2 rounded-full"
+                  style={{
+                    background: `radial-gradient(circle at 50% 50%, ${thought.soulColor.to} 0%, ${thought.soulColor.from} 100%)`,
+                    filter: 'blur(0.5px)'
+                  }}
+                />
+              </div>
               <div className="flex-1">
                 <p className="text-base lg:text-lg text-[#3D3D3D] leading-relaxed">
                   {thought.text}

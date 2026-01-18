@@ -32,16 +32,27 @@ export interface OnboardingAnswer {
 export interface Thought {
   id: string;
   content: string;
-  soulColor: { from: string; to: string };
+  soulColor: { name: string; from: string; to: string };
   author: string;
 }
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
-  const [userSoulColor, setUserSoulColor] = useState({ from: '#E8C4B8', to: '#D4A89F' });
+  const [userSoulColor, setUserSoulColor] = useState({ name: 'Slate Gray', from: '#455A64', to: '#607D8B' });
   const [selectedThought, setSelectedThought] = useState<Thought | null>(null);
   const [onboardingAnswers, setOnboardingAnswers] = useState<OnboardingAnswer[]>([]);
   const [otherUserAnswers, setOtherUserAnswers] = useState<OnboardingAnswer[]>([]);
+
+  const handlePromptSubmit = (prompt: string) => {
+    // Create a new thought with the prompt
+    const newThought: Thought = {
+      id: Date.now().toString(),
+      content: prompt,
+      soulColor: userSoulColor,
+      author: 'You'
+    };
+    setSelectedThought(newThought);
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF9F7] flex items-center justify-center">
@@ -91,6 +102,7 @@ export default function Home() {
           <CreateStartingPrompt 
             userSoulColor={userSoulColor}
             onNavigate={setCurrentScreen}
+            onSubmit={handlePromptSubmit}
           />
         )}
         

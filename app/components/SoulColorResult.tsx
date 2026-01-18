@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Screen } from '../page';
 
 interface SoulColorResultProps {
-  soulColor: { from: string; to: string };
+  soulColor: { name?: string; from: string; to: string };
   onNavigate: (screen: Screen) => void;
 }
 
@@ -15,7 +15,11 @@ const descriptions = [
 ];
 
 export function SoulColorResult({ soulColor, onNavigate }: SoulColorResultProps) {
-  const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+  const description = useMemo(() => {
+    const name = soulColor.name || 'Unknown';
+    const index = name.length % descriptions.length;
+    return descriptions[index];
+  }, [soulColor.name]);
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-between p-6 lg:p-12 pt-12 lg:pt-24 pb-6 lg:pb-16">
@@ -23,12 +27,29 @@ export function SoulColorResult({ soulColor, onNavigate }: SoulColorResultProps)
         <div className="mb-12 lg:mb-16">
           <p className="text-base lg:text-lg text-[#9B9B9B] mb-4 lg:mb-6">Your Soul Color</p>
           
-          <div 
-            className="w-48 h-48 lg:w-64 lg:h-64 rounded-full mx-auto mb-8 lg:mb-12 shadow-xl"
-            style={{
-              background: `linear-gradient(135deg, ${soulColor.from} 0%, ${soulColor.to} 100%)`,
-            }}
-          />
+          <div className="relative w-48 h-48 lg:w-64 lg:h-64 rounded-full mx-auto mb-8 lg:mb-12 shadow-xl">
+            <div 
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 35% 35%, ${soulColor.to} 0%, ${soulColor.from} 70%, transparent 90%)`,
+                filter: 'blur(1.5px)'
+              }}
+            />
+            <div 
+              className="absolute inset-4 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 65% 65%, ${soulColor.from} 0%, ${soulColor.to} 60%, transparent 85%)`,
+                filter: 'blur(1px)'
+              }}
+            />
+            <div 
+              className="absolute inset-8 rounded-full"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, ${soulColor.to} 0%, ${soulColor.from} 100%)`,
+                filter: 'blur(0.5px)'
+              }}
+            />
+          </div>
         </div>
         
         <h2 className="text-3xl lg:text-4xl mb-4 lg:mb-6">

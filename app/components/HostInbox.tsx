@@ -3,7 +3,7 @@ import { Screen, OnboardingAnswer } from '../page';
 import { ArrowLeft, Check, X } from 'lucide-react';
 
 interface HostInboxProps {
-  userSoulColor: { from: string; to: string };
+  userSoulColor: { name: string; from: string; to: string };
   onNavigate: (screen: Screen) => void;
   onAccept: (thought: any) => void;
 }
@@ -11,14 +11,14 @@ interface HostInboxProps {
 const mockReplies = [
   {
     id: 1,
-    senderSoulColor: { from: '#B8D4C4', to: '#9FBFAA' },
+    senderSoulColor: { name: 'Soft Sage', from: '#689F38', to: '#8BC34A' },
     message: "I relate to this so much. Would love to talk about it.",
     originalThought: "Does anyone else feel like they're more themselves online?",
     timeLeft: 180, // seconds
   },
   {
     id: 2,
-    senderSoulColor: { from: '#C4B8E8', to: '#A89FD4' },
+    senderSoulColor: { name: 'Lavender Mist', from: '#7B1FA2', to: '#BA68C8' },
     message: "This resonates. I've been thinking about the same thing lately.",
     originalThought: "What's something small that made you smile today?",
     timeLeft: 120, // seconds
@@ -77,13 +77,29 @@ export function HostInbox({ userSoulColor, onNavigate, onAccept }: HostInboxProp
               <div className="flex items-start gap-4">
                 {/* Soul Color */}
                 <div className="relative shrink-0">
-                  <div 
-                    className="w-14 h-14 rounded-full bg-gradient-to-br"
-                    style={{
-                      backgroundImage: `linear-gradient(135deg, ${reply.senderSoulColor.from} 0%, ${reply.senderSoulColor.to} 100%)`
-                    }}
-                  />
-                  <div className="absolute inset-0 w-14 h-14 rounded-full bg-white/20 blur-md" />
+                  <div className="w-14 h-14 rounded-full">
+                    <div 
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: `radial-gradient(circle at 35% 35%, ${reply.senderSoulColor.to} 0%, ${reply.senderSoulColor.from} 70%, transparent 90%)`,
+                        filter: 'blur(1.5px)'
+                      }}
+                    />
+                    <div 
+                      className="absolute inset-1 rounded-full"
+                      style={{
+                        background: `radial-gradient(circle at 65% 65%, ${reply.senderSoulColor.from} 0%, ${reply.senderSoulColor.to} 60%, transparent 85%)`,
+                        filter: 'blur(1px)'
+                      }}
+                    />
+                    <div 
+                      className="absolute inset-2 rounded-full"
+                      style={{
+                        background: `radial-gradient(circle at 50% 50%, ${reply.senderSoulColor.to} 0%, ${reply.senderSoulColor.from} 100%)`,
+                        filter: 'blur(0.5px)'
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Reply Content */}
